@@ -21,7 +21,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 }
- 
+
 void loop() {
   String data;
   
@@ -33,30 +33,26 @@ void loop() {
     } else if (data.indexOf("OFF") != -1) {
       state = STOPPED;
       Serial.println("OFF");
-    } else if (data.indexOf("STOP")!= -1) {
+    } else if (data.indexOf("STOP") != -1) {
       state = STOPPED;
       Serial.println("STOPPED");
-    } else if (data.indexOf("START")!= -1) {
+    } else if (data.indexOf("START") != -1) {
       state = RUNNING;
       Serial.println("STARTED");
-    } 
-    /*
-    else if (data.indexOf("Arm_Done") != -1) {
-      Serial.println("Conveyor_started");
     }
-    */
   }
 
   proxDetect = digitalRead(prox);
   if (state == RUNNING) {
     if ((!proxDetect) && proxDetPrev) {
       state = PAUSED;
-    } else {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
+    } 
+    digitalWrite(LED_BUILTIN, HIGH);
   } else if (state == PAUSED) {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("Detected");
+    delay(500);
+    state = STOPPED;
   } else if (state == STOPPED) {
     digitalWrite(LED_BUILTIN, LOW);
   }
