@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import time
+import os # For Raspberry Pi /dev/ttyAMC Ports
 import random
 
 import serial
-import serial.tools.list_ports as listPorts
+# import serial.tools.list_ports as listPorts # For Windows COM ports
 
 timeS = time.strftime("%Y-%m-%d-%H_%M_%S")
 
@@ -53,17 +54,18 @@ def confirm_comm(port):
 def detectArduino():
 	arduinoPorts = [None, None]
 
-	comPorts = listPorts.comports()
+	comPorts = os.listdir("/dev")
 
 	for port in comPorts:
 		strPort = str(port)
  
-		if ("Arduino" in strPort):
+		if ("ACM" in strPort):
 			splitPort = strPort.split(' ')
-			portConn, id = confirm_comm((splitPort[0]))
+			portPath = f"/dev/{splitPort[0]}"
+			portConn, id = confirm_comm(portPath)
 		
 			if portConn and (id is not None):
-				arduinoPorts[id] = (splitPort[0])
+				arduinoPorts[id] = portPath
 
 	return arduinoPorts
 
@@ -141,7 +143,7 @@ if __name__ == '__main__':
 
 				elif "Detected" in convData:
 						r = random.randint(0,2)
-						#time.sleep(2)
+						time.sleep(3)
 						print(f"IT DETECTED {r}")
 						serSort.write(f"Sort: {r}\n".encode('utf-8'))
 

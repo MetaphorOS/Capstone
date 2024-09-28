@@ -1,4 +1,5 @@
 #define prox 9
+#define conv 8
 
 enum State {
   STOPPED = 0,
@@ -18,8 +19,8 @@ void setup() {
 
   state = STOPPED;
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
+  pinMode(conv, OUTPUT);
+  digitalWrite(conv, LOW);
 }
 
 void loop() {
@@ -47,14 +48,14 @@ void loop() {
     if ((!proxDetect) && proxDetPrev) {
       state = PAUSED;
     } 
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(conv, HIGH);
   } else if (state == PAUSED) {
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(conv, LOW);
     Serial.println("Detected");
     delay(500);
     state = STOPPED;
   } else if (state == STOPPED) {
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(conv, LOW);
   }
   proxDetPrev = proxDetect;
 }
