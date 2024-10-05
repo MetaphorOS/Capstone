@@ -157,7 +157,12 @@ if __name__ == '__main__':
 				elif "Ready" in sortData:
 					serConv.write(f"START\n".encode('utf-8'))
 					print("YEAH BABY LETS GOO WOOO?")
-				
+				elif "Overweight" in sortData:
+					serConv.write(f"OFF\n".encode('utf-8'))
+					print("whoops")
+				elif "Resuming" in sortData:
+					serConv.write(f"START\n".encode('utf-8'))
+					print("Run it Back")				
 				elif "STARTED" in sortData:
 					print("WOOOOO, YEAH BABY!!") 
 
