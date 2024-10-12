@@ -19,8 +19,7 @@ def confirm_comm(port):
 
 	try:
 		ser = serial.Serial(port, baudRate, timeout=1)
-		#ser.reset_input_buffer()
-		time.sleep(2)
+		time.sleep(5)
 
 		while (not pong):
 			print(f"Connection Attempt {attempts}")
@@ -41,13 +40,12 @@ def confirm_comm(port):
 				ser.close()
 				return False, id
 			
-			time.sleep(3)
+			time.sleep(2)
 		
 		ser.close()
 		return True, id
 	except serial.serialutil.SerialException as e:
 		print(f"{e}\n")
-		# ser.close()
 		return False, id
 
 
@@ -99,7 +97,7 @@ if __name__ == '__main__':
 		serConv = serial.Serial(arduinoPorts[0], baudRate, timeout=1)
 		serSort = serial.Serial(arduinoPorts[1], baudRate, timeout=1)
 		
-		time.sleep(2)
+		time.sleep(5)
 		
 		serConv.reset_input_buffer()
 		serSort.reset_input_buffer()
@@ -135,8 +133,6 @@ if __name__ == '__main__':
 			convData = getSerResp(serConv, False)
 			sortData = getSerResp(serSort, False)
 
-			#print(convData, sortData, "\n")
-
 			if "NaN" not in convData and convData is not None:
 				if ("OFF" in convData) and loopExit:
 					convExit = True
@@ -162,7 +158,9 @@ if __name__ == '__main__':
 					print("whoops")
 				elif "Resuming" in sortData:
 					serConv.write(f"START\n".encode('utf-8'))
-					print("Run it Back")				
+					print("Run it Back")
+				elif "Sorted" in sortData:
+					serConv.write(f"BUFFER\n".encode('utf-8'))
 				elif "STARTED" in sortData:
 					print("WOOOOO, YEAH BABY!!") 
 
