@@ -61,8 +61,8 @@ def defectDetection(path, inputImg):
     return orb
 
 # Path to reference images for feature detector
-path = 'bads'
+# path = 'bads'
 
 # Temporary testing image, will be replaced with feed from RPi camera in production
-test = cv2.imread("./badTest2.png")
-defectDetection(path, test)
+# test = cv2.imread("./badTest2.png")
+# defectDetection(path, test)
