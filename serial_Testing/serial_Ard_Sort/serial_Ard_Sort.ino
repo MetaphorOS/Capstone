@@ -24,7 +24,7 @@ boolean goodOverWeight;
 
 Servo sortBadServo;
 HX711 scaleBad(weightDTBad, weightCLKBad);
-float calibration_factor_scaleBad = 714.0;
+float calibration_factor_scaleBad = 932.0;
 
 boolean proxBadDetect;
 boolean proxBadDetPrev;
@@ -39,7 +39,7 @@ boolean badOverWeight;
 
 Servo sortDefectServo;
 HX711 scaleDefect(weightDTDefect, weightCLKDefect);
-float calibration_factor_scaleDefect = 668.0;
+float calibration_factor_scaleDefect = 673.0;
 
 boolean proxDefectDetect;
 boolean proxDefectDetPrev;
@@ -73,14 +73,14 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
   
   sortGoodServo.attach(sortGood);
-  sortGoodServo.write(10);
+  sortGoodServo.write(45);
 
   sortBadServo.attach(sortBad);
-  sortBadServo.write(10);
+  sortBadServo.write(45);
 
   sortDefectServo.attach(sortDefect);
-  sortDefectServo.write(10);
-
+  sortDefectServo.write(45);
+  
   scaleGood.set_scale();
   scaleGood.tare();  //Reset the scale to 0
   weightGood = 0.00;
@@ -99,7 +99,6 @@ void setup() {
 
 void loop() {
   String data;
-  
   if (Serial.available() > 0) {
     data = Serial.readStringUntil('\n');
     
@@ -130,115 +129,38 @@ void loop() {
       sortCurrent = vSortBuffer[0];
       switch (sortCurrent) {
           case 0: {
-            sortGoodServo.write(45);
+            sortGoodServo.write(150);
             if (!proxGoodDetect && proxGoodDetPrev) {
-              sortGoodServo.write(10);
+              sortGoodServo.write(45);
               Serial.print("Sorted: ");
               Serial.println(sortCurrent);
               vSortBuffer.erase(vSortBuffer.begin());
             }
           } break;
           case 1: {
-            sortBadServo.write(45);
+            sortBadServo.write(150);
             if (!proxBadDetect && proxBadDetPrev) {
-              sortBadServo.write(10);
+              sortBadServo.write(45);
               Serial.print("Sorted: ");
               Serial.println(sortCurrent);
               vSortBuffer.erase(vSortBuffer.begin());
             }
           } break;
           case 2: {
-            sortDefectServo.write(45);
+            sortDefectServo.write(150);
             if (!proxDefectDetect && proxDefectDetPrev) {
-              sortDefectServo.write(10);
+              sortDefectServo.write(45);
               Serial.print("Sorted: ");
               Serial.println(sortCurrent);
               vSortBuffer.erase(vSortBuffer.begin());
             }
           } break;
           default: {
-            sortGoodServo.write(10);
-            sortBadServo.write(10);
-            sortDefectServo.write(10);
+            sortGoodServo.write(45);
+            sortBadServo.write(45);
+            sortDefectServo.write(45);
           } break;
         }
-    /*
-    if (vSortBuffer.size() > 0) {
-      //if (proxGoodDetect && !proxGoodDetPrev) {
-        sortCurrent = vSortBuffer[0];
-       
-        Serial.print("Sorting: ");
-        Serial.println(sortCurrent);
-        
-        switch (sortCurrent) {
-          case 0:
-            sortGoodServo.write(45);
-            while (!(!proxGoodDetect && proxGoodDetPrev)) {
-              if (Serial.available() > 0) {
-                data = Serial.readStringUntil('\n');
-                
-                if (data.indexOf("OFF") != -1) {
-                  state = STOPPED;
-                  Serial.println("OFF");
-                  break;
-                } else if (data.indexOf("Sort") != -1){
-                  sortDetect = data.substring(data.indexOf(':')+1).toInt();
-                  vSortBuffer.push_back(sortDetect);
-                  Serial.print("Ready:");
-                  Serial.println(sortDetect);
-                  delay(500);
-                }
-              }
-
-              
-              
-              proxGoodDetect = digitalRead(proxGood);
-              if (!proxGoodDetect && proxGoodDetPrev) {break; };
-              proxGoodDetPrev = proxGoodDetect;
-            }
-            delay(500);
-            sortGoodServo.write(10); 
-            break;
-          case 1:
-            sortBadServo.write(45);
-            while (!(!proxBadDetect && proxBadDetPrev)) {
-              if (Serial.available() > 0) {
-                data = Serial.readStringUntil('\n');
-                
-                if (data.indexOf("OFF") != -1) {
-                  state = STOPPED;
-                  Serial.println("OFF");
-                  break;
-                } else if (data.indexOf("Sort") != -1){
-                  sortDetect = data.substring(data.indexOf(':')+1).toInt();
-                  vSortBuffer.push_back(sortDetect);
-                  Serial.print("Ready:");
-                  Serial.println(sortDetect);
-                  delay(500);
-                }
-              }
-              proxBadDetect = digitalRead(proxBad);
-              if (!proxBadDetect && proxBadDetPrev) {break; };
-              proxBadDetPrev = proxBadDetect;               
-            }
-            delay(500);
-            sortBadServo.write(10); 
-            break;
-          case 2:
-            sortGoodServo.write(90);
-            delay(500);
-            sortGoodServo.write(10);  
-            break;
-          default:
-            sortGoodServo.write(10);
-            sortBadServo.write(10); 
-            break;
-        }
-        Serial.print("Sorted: ");
-        Serial.println(sortCurrent);
-        vSortBuffer.erase(vSortBuffer.begin());
-        delay(500);
-      */
     } else {
       delay(500);
       state = STANDBY;
@@ -290,16 +212,16 @@ void loop() {
         }
       }
     }
-    //*/
+    
   } else if ((state == STANDBY) || (state == STOPPED)) {
-    sortGoodServo.write(10);
-    sortBadServo.write(10);
-    sortDefectServo.write(10);
+    sortGoodServo.write(45);
+    sortBadServo.write(45);
+    sortDefectServo.write(45);
   } 
   proxGoodDetPrev = proxGoodDetect;
   proxBadDetPrev = proxBadDetect;
   proxDefectDetPrev = proxBadDetect;
-
+  
   weightGood = getScaleReading(scaleGood, calibration_factor_scaleGood);
   weightBad = getScaleReading(scaleBad, calibration_factor_scaleBad);
   weightDefect = getScaleReading(scaleDefect, calibration_factor_scaleDefect);
@@ -310,8 +232,14 @@ void loop() {
     defectOverWeight = (weightDefect >= maxWeight);
     
     state = MAINTENANCE;
-    Serial.println("Overweight");
-  }
+    Serial.print("Overweight [");
+    Serial.print(goodOverWeight);
+    Serial.print(", ");
+    Serial.print(badOverWeight);
+    Serial.print(", ");
+    Serial.print(defectOverWeight);
+    Serial.println("]");
+  } 
 }
 
 float getScaleReading(HX711 scale, float calibration_factor) {

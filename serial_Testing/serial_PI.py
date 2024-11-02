@@ -113,23 +113,6 @@ if __name__ == '__main__':
 
 	while True:
 		try:
-		# 	command = input("Command: ").upper()
-		# 	if command == "EXIT" or command == "OFF":
-		# 		serConv.write(f"OFF\n".encode('utf-8'))
-		# 		serSort.write(f"OFF\n".encode('utf-8'))
-		# 		print("Turning Motor OFF")
-		# 		if command == "EXIT":
-		# 			loopExit = True
-		# 	elif command == "ON":
-		# 		serConv.write(f"ON\n".encode('utf-8'))
-		# 		serSort.write(f"ON\n".encode('utf-8'))
-		# 		print("Turning Motor ON")
-		# except KeyboardInterrupt:
-		# 	serConv.write(f"OFF\n".encode('utf-8'))
-		# 	serSort.write(f"OFF\n".encode('utf-8'))
-		# 	print("Turning Motor OFF")
-		# 	loopExit = True
-
 			convData = getSerResp(serConv, False)
 			sortData = getSerResp(serSort, False)
 
@@ -151,15 +134,15 @@ if __name__ == '__main__':
 					sortExit = True
 				
 				elif "Ready" in sortData:
-					serConv.write(f"START\n".encode('utf-8'))
+					serConv.write(f"RESUME\n".encode('utf-8'))
 					print("YEAH BABY LETS GOO WOOO?")
 				elif "Overweight" in sortData:
 					serConv.write(f"OFF\n".encode('utf-8'))
 					print("whoops")
 				elif "Resuming" in sortData:
-					serConv.write(f"START\n".encode('utf-8'))
+					serConv.write(f"RESUME\n".encode('utf-8'))
 					print("Run it Back")
-				elif "Sorted" in sortData:
+				elif "Emptied" in sortData:
 					serConv.write(f"BUFFER\n".encode('utf-8'))
 				elif "STARTED" in sortData:
 					print("WOOOOO, YEAH BABY!!") 

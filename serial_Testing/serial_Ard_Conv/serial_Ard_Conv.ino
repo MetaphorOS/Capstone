@@ -1,11 +1,9 @@
 #define prox 9
-//#define conv 8
-//#define buff 7
  
-#define convFWD 7
-#define convREV 6
-#define bufferFWD 5
-#define bufferREV 4
+#define convFWD 6
+#define convREV 7
+#define bufferFWD 4
+#define bufferREV 5
 
 enum State {
   STOPPED = 0,
@@ -26,11 +24,6 @@ void setup() {
   Serial.setTimeout(1); //Timeout Serial after one second
 
   state = STOPPED;
-
-  //pinMode(conv, OUTPUT);
-  //pinMode(buff, OUTPUT);
-  //digitalWrite(conv, LOW);
-  //digitalWrite(buff, LOW);
 
   pinMode(convFWD,OUTPUT);
   pinMode(convREV,OUTPUT);
@@ -57,22 +50,32 @@ void loop() {
     } else if (data.indexOf("START") != -1) {
       state = RUNNING;
       Serial.println("STARTED");
+    } else if (data.indexOf("RESUME")!= -1) {
+      state = RUNNING;
+      Serial.println("STARTED");
+      digitalWrite(convFWD, HIGH);
+      digitalWrite(convREV, LOW);
+      
+      digitalWrite(bufferFWD, LOW);
+      digitalWrite(bufferREV, startBuffer);
+      delay(1000);
     } else if (data.indexOf("BUFFER") != -1) {
       startBuffer = true;
     }
   }
 
   proxDetect = digitalRead(prox);
+  
   if (state == RUNNING) {
-    if (proxDetect && !proxDetPrev) {
+    if (!proxDetect && proxDetPrev) {
       state = PAUSED;
     } 
     
     digitalWrite(convFWD, HIGH);
     digitalWrite(convREV, LOW);
     
-    digitalWrite(bufferFWD, startBuffer);
-    digitalWrite(bufferREV, LOW);
+    digitalWrite(bufferFWD, LOW);
+    digitalWrite(bufferREV, startBuffer);
 
   } else if (state == PAUSED) {
     digitalWrite(convFWD, LOW);
