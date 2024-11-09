@@ -1,0 +1,153 @@
+/* General Styling */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #333;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: white;
+  display: block;
+  padding: 10px;
+  background-color: #444;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.sidebar ul li a:hover {
+  background-color: #555;
+}
+
+.sidebar ul li a.active {
+  background-color: #666;
+}
+
+/* Main Content */
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+}
+
+.card {
+  flex: 1;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card h3 {
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Inventory Page Styles */
+.inventory-container {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+thead {
+  background-color: #333;
+  color: white;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Buttons */
+button {
+  padding: 8px 12px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-edit {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #45a049;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #e53935;
+}
+
+.btn-add {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #2196F3;
+  color: white;
+  border-radius: 5px;
+  text-align: center;
+  width: 200px;
+}
+
+.btn-add:hover {
+  background-color: #1e88e5;
+}

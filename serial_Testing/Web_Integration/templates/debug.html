@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Page - WMS</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WMS System</h2>
+    <ul>
+      <li><a href="/">Dashboard</a></li>
+      <li><a href="/inventory">Inventory</a></li>
+      <li><a href="/debug">Debug</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <header>
+      <h1>Debug Page</h1>
+      <p>This area can be used for testing camera feeds or system status.</p>
+    </header>
+
+    <div class="camera-feed">
+      <!-- <p>No camera feed connected.</p> -->
+      <!-- Example placeholder for a video or camera stream -->
+      <video id="camera" width="640" height="480" autoplay></video>
+    </div>
+  </div>
+
+  <script>
+    // Optional JavaScript to access a connected camera (if available)
+    const video = document.getElementById('camera');
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          console.error("Camera access denied:", err);
+        });
+    }
+  </script>
+</body>
+</html>

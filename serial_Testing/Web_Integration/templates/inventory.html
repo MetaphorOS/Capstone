@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - WMS</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>WMS System</h2>
+        <ul>
+            <li><a href="/">Dashboard</a></li>
+            <li><a href="/inventory">Inventory</a></li>
+            <li><a href="/debug">Debug</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <header>
+            <h1>Inventory</h1>
+            <button id="sql_script">Temp Button</button>
+            <script>
+                document.getElementById('sql_script').addEventListener('click', function() {
+                    fetch('/sql_script', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            alert('SQL script executed successfully');
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            </script>
+            <button id="start_again">Start New Batch</button>
+            <script>
+                document.getElementById('start_again').addEventListener('click', function() {
+                    fetch('/start_again', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            alert('New Batch started');
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            </script>
+            <button id="stop">Start New Batch</button>
+            <script>
+                document.getElementById('stop').addEventListener('click', function() {
+                    fetch('/stop', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            alert('stop is true');
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            </script>
+            <p>Manage and track your warehouse inventory.</p>
+        </header>
+
+        <div class="inventory-container">
+            <h2>Tomato Batch Information</h2>
+            <table id="tomato-batch-table" border="1">
+                <thead>
+                    <tr>
+                        <th>Batch Number</th>
+                        <th>Total Tomatoes</th>
+                        <th>Ripe Tomatoes</th>
+                        <th>Unripe Tomatoes</th>
+                        <th>Twilight Zone Tomatoes</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Function to fetch the latest tomato batch data and update the table
+        function fetchTomatoBatchData() {
+            fetch('/get_tomato_batches')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#tomato-batch-table tbody');
+                    tableBody.innerHTML = ''; // Clear current rows
+
+                    // Loop through the data and insert new rows into the table
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${row.batch_number}</td>
+                            <td>${row.total_tomatoes}</td>
+                            <td>${row.ripe_tomatoes}</td>
+                            <td>${row.unripe_tomatoes}</td>
+                            <td>${row.twilight_zone_tomatoes}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Fetch the data on page load
+        window.onload = fetchTomatoBatchData;
+
+        // Refresh the data every 5 seconds (for live updates)
+        setInterval(fetchTomatoBatchData, 5000); // 5000 ms = 5 seconds
+    </script>
+</body>
+
+</html>
