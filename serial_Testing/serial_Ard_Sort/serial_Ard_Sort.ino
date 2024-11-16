@@ -67,7 +67,7 @@ enum State {
 const long int baudRate = 230400;
 enum State state;
 
-float maxWeight = 250.0;
+float maxWeight = 100.0;
 
 std::vector<int> vSortBuffer;
 int sortDetect;
@@ -213,21 +213,21 @@ void loop() {
         
         // If container is/was overweight, tare scale, and get new reading. Re-check if container is overweight.
         if (goodOverWeight) {
-          scaleGood.tare();
+          //scaleGood.tare();
           weightGood = getScaleReading(scaleGood, calibration_factor_scaleGood);
           goodOverWeight = (weightGood >= maxWeight);
         }
 
         // If container is/was overweight, tare scale, and get new reading. Re-check if container is overweight.
         if (badOverWeight) {
-          scaleBad.tare();
+          //scaleBad.tare();
           weightBad = getScaleReading(scaleBad, calibration_factor_scaleBad);
           badOverWeight = (weightBad >= maxWeight);
         }
 
         // If container is/was overweight, tare scale, and get new reading. Re-check if container is overweight.
         if (defectOverWeight) {
-          scaleDefect.tare();
+          //scaleDefect.tare();
           weightDefect = getScaleReading(scaleDefect, calibration_factor_scaleDefect);
           defectOverWeight = (weightDefect >= maxWeight);
         }
@@ -273,11 +273,11 @@ void loop() {
     
     state = MAINTENANCE;
     Serial.print("Overweight [");
-    Serial.print(goodOverWeight);
+    Serial.print(weightGood);
     Serial.print(", ");
-    Serial.print(badOverWeight);
+    Serial.print(weightBad);
     Serial.print(", ");
-    Serial.print(defectOverWeight);
+    Serial.print(weightDefect);
     Serial.println("]");
   } 
 }

@@ -86,6 +86,9 @@ void loop() {
   if (state == RUNNING) {
     if (!proxDetect && proxDetPrev) {
       state = PAUSED;
+      digitalWrite(bufferFWD, LOW);
+      digitalWrite(bufferREV, LOW);
+      delay(1500);
     } 
     
     digitalWrite(convFWD, HIGH);
@@ -105,9 +108,9 @@ void loop() {
     startBuffer = false;
     
     Serial.println("Detected");
-    delay(500);
+    
     state = STOPPED;
-
+    
   // If System State is STOPPED, stop all conveyor and input buffer operations
   } else if (state == STOPPED) {
     digitalWrite(convFWD, LOW);

@@ -3,6 +3,7 @@ import threading
 import time
 import sqlite3
 from src.Serial import *
+from camera.color import *
 
 app = Flask(__name__)
 
@@ -67,8 +68,7 @@ def background_loop():
 			batch_number = add_new_row(batch_number)
 			serConv.write(f"START\n".encode('utf-8'))
 			serSort.write(f"START\n".encode('utf-8'))
-
-
+			
 		try:
 			convData = getSerResp(serConv, False)
 			sortData = getSerResp(serSort, False)
@@ -93,7 +93,8 @@ def background_loop():
 							tomato = int(values[1].strip())
 							# print(tomato)
 						
-						r = randomAdd(batch_number)
+						r = detectValue() #randomAdd(batch_number)
+						richard(batch_number, r)
 					db.close()
 					time.sleep(3)
 					print(f"IT DETECTED {r}")
@@ -130,8 +131,7 @@ def background_loop():
 				elif "Emptied" in sortData:
 					if tomato >= 10:
 						stop = True
-					else:
-						serConv.write(f"BUFFER\n".encode('utf-8'))
+					serConv.write(f"BUFFER\n".encode('utf-8'))
 					
 				# If STARTED is received, Sorting Arduino is confirmed to have started.
 				elif "STARTED" in sortData:
@@ -245,6 +245,21 @@ def randomAdd(batch_number):
 	db.commit()
 	db.close()
 	return r
+
+def richard(batch_number, r):
+	db = get_db()
+	cursor = db.cursor()
+	if r == 0:
+		cursor.execute("UPDATE Batch_info SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+		cursor.execute("UPDATE Ripe SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+	elif r == 1:
+		cursor.execute("UPDATE Batch_info SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+		cursor.execute("UPDATE Unripe SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+	elif r == 2:
+		cursor.execute("UPDATE Batch_info SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+		cursor.execute("UPDATE Twilight_zone SET tomato = tomato + 1 WHERE batch_number = " + str(batch_number))
+	db.commit()
+	db.close()
 
 #add row when tomato counter for latest batch = 10
 def add_new_row(batch_number):
