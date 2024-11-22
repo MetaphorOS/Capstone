@@ -1,9 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, jsonify
+from flask import Flask, render_template, redirect, url_for, jsonify, Response, request, send_file
 import threading
 import time
 import sqlite3
 from src.Serial import *
 from camera.color import *
+import cv2
+import numpy as np
 
 app = Flask(__name__)
 
@@ -13,6 +15,34 @@ stop = False
 loopExit = False
 
 Database = 'tomato.db'
+
+red_hsv = {}
+green_hsv = {}
+
+file = open("val.txt", "r")
+red_hsv["H_min"] = file.readline()
+red_hsv["H_max"] = file.readline()
+red_hsv["S_min"] = file.readline()
+red_hsv["S_max"] = file.readline()
+red_hsv["V_min"] = file.readline()
+red_hsv["V_max"] = file.readline()
+
+green_hsv["H_min"] = file.readline()
+green_hsv["H_max"] = file.readline()
+green_hsv["S_min"] = file.readline()
+green_hsv["S_max"] = file.readline()
+green_hsv["V_min"] = file.readline()
+green_hsv["V_max"] = file.readline()
+
+# red_hsv = {'H_min': 0, 'H_max': 10, 'S_min': 100, 'S_max': 255, 'V_min': 100, 'V_max': 255}
+# green_hsv = {'H_min': 40, 'H_max': 80, 'S_min': 100, 'S_max': 255, 'V_min': 100, 'V_max': 255}
+
+
+image_paths = [
+    "static/images/green.jpg",
+    "static/images/red.jpg",
+    "static/images/brown.jpg"
+]
 
 def background_loop():
 	global is_locked
@@ -93,7 +123,7 @@ def background_loop():
 							tomato = int(values[1].strip())
 							# print(tomato)
 						
-						r = detectValue() #randomAdd(batch_number)
+						r = detectValue(red_hsv["H_min"], red_hsv["H_max"], red_hsv["S_min"], red_hsv["S_max"], red_hsv["V_min"], red_hsv["V_max"], green_hsv["H_min"], green_hsv["H_max"], green_hsv["S_min"], green_hsv["S_max"], green_hsv["V_min"], green_hsv["V_max"]) #randomAdd(batch_number)
 						richard(batch_number, r)
 					db.close()
 					time.sleep(3)
@@ -285,6 +315,139 @@ def get_tomato_batches():
 	batches = [dict(row) for row in result]
 	return jsonify(batches)
 
+@app.route("/settings")
+def settings():
+	global stop
+	stop = True
+	return render_template('settings.html')
+
+def apply_hsv_filter(image, hsv_range):
+    """Apply HSV filter to an image."""
+    # Convert to HSV color space
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    # Define lower and upper HSV bounds
+    lower_bound = np.array([hsv_range['h_min'], hsv_range['s_min'], hsv_range['v_min']])
+    upper_bound = np.array([hsv_range['h_max'], hsv_range['s_max'], hsv_range['v_max']])
+
+    # Create the mask based on the HSV range
+    mask = cv2.inRange(hsv_image, lower_bound, upper_bound)
+    
+    # Apply the mask to the image
+    filtered_image = cv2.bitwise_and(image, image, mask=mask)
+
+    # Check if any pixels match the filter
+    is_filter_present = np.any(mask > 0)
+
+    # print(filtered_image)
+
+    return filtered_image, int(is_filter_present)
+
+@app.route("/startup", methods=["POST"])
+def startup():
+	try:
+		global stop 
+		stop = False
+		return jsonify(success=True), 400
+	except Exception as e:
+		return jsonify(success=False), 500
+
+
+@app.route("/filtered", methods=["POST"])
+def filtered_image():
+    print("YEAH")
+    """Handle the POST request for filtered images."""
+    data = request.get_json()
+
+    # Log the received data to debug
+    print("Received data:", data)
+
+    # for field in required_fields:
+    #     if field not in data:
+    #         print(field)
+    #         return jsonify({"error": f"Missing field: {field}"}), 400
+
+    filter_type = data['filter_type']
+    # image_id = data['image_id']
+
+    # Validate image_id
+    # if image_id < 1 or image_id > len(image_paths):
+    #     return jsonify({"error": "Image ID out of range"}), 400
+
+    # Get the current filter settings from the request
+    hsv_range = {
+        'h_min': int(data[f'{filter_type}-h-min']),
+        'h_max': int(data[f'{filter_type}-h-max']),
+        's_min': int(data[f'{filter_type}-s-min']),
+        's_max': int(data[f'{filter_type}-s-max']),
+        'v_min': int(data[f'{filter_type}-v-min']),
+        'v_max': int(data[f'{filter_type}-v-max']),
+    }
+
+    # Load the original image based on image_id
+    for i in range(len(image_paths)):
+        image_path = image_paths[i]  # Subtract 1 to get the correct image index
+        script_dir = os.path.dirname(__file__)
+        image_path = os.path.join(script_dir, image_path)
+        image = cv2.imread(image_path)
+
+        if image is None:
+            return jsonify({"error": "Image not found"}), 400
+
+    # Apply the selected filter
+        filtered_image, _ = apply_hsv_filter(image, hsv_range)
+
+    # Save the filtered image temporarily
+        output_path = f"static/temp/{filter_type}_filtered_{i+1}.jpg"
+        output_path = os.path.join(script_dir, output_path)
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        cv2.imwrite(output_path, filtered_image)
+
+    if filter_type == "red": 
+        red_hsv["H_max"] = hsv_range["h_max"]
+        red_hsv["H_min"] = hsv_range["h_min"]
+        red_hsv["S_min"] = hsv_range["s_min"]
+        red_hsv["S_max"] = hsv_range["s_max"]
+        red_hsv["V_min"] = hsv_range["v_min"]
+        red_hsv["V_max"] = hsv_range["v_max"]
+    else:
+        green_hsv["H_max"] = hsv_range["h_max"]
+        green_hsv["H_min"] = hsv_range["h_min"]
+        green_hsv["S_min"] = hsv_range["s_min"]
+        green_hsv["S_max"] = hsv_range["s_max"]
+        green_hsv["V_min"] = hsv_range["v_min"]
+        green_hsv["V_max"] = hsv_range["v_max"]
+
+    if os.path.exists("new.txt"):
+        os.remove("new.txt")
+
+    with open("val.txt", "w") as file:
+        file.write(str(red_hsv["H_min"]) + "\n")
+        file.write(str(red_hsv["H_max"]) + "\n")
+        file.write(str(red_hsv["S_min"]) + "\n")
+        file.write(str(red_hsv["S_max"]) + "\n")
+        file.write(str(red_hsv["V_min"]) + "\n")
+        file.write(str(red_hsv["V_max"]) + "\n")
+
+        file.write(str(green_hsv["H_min"]) + "\n")
+        file.write(str(green_hsv["H_max"]) + "\n")
+        file.write(str(green_hsv["S_min"]) + "\n")
+        file.write(str(green_hsv["S_max"]) + "\n")
+        file.write(str(green_hsv["V_min"]) + "\n")
+        file.write(str(green_hsv["V_max"]) + "\n")
+
+
+    # Return the filtered image path and output values
+    return jsonify({"success": "Filters applied and images saved."}), 200
+
+#THIS IS A TEMP FUNCTION THIS NEEDS TO BE CHANGED TODAY
+@app.route('/capture/<color>', methods=['GET'])
+def capture_color(color):
+    if color in ['red', 'green', 'blue']:
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False), 400
+
 #Databse code
 def get_db(): 
 	db = sqlite3.connect(Database)
@@ -308,6 +471,6 @@ def initialize():
 
 if __name__ == '__main__':
 	initialize()
-	thread = threading.Thread(target=background_loop, daemon=True)
-	thread.start()
+	# thread = threading.Thread(target=background_loop, daemon=True)
+	# thread.start()
 	app.run(debug=True, threaded=True)

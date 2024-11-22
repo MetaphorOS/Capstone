@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Filters Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WMS System</h2>
+    <ul>
+      <li><a href="/">Dashboard</a></li>
+      <li><a href="/inventory">Inventory</a></li>
+      <li><a href="/settings">settings</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <header>
+      <h1>Color Capture</h1>
+        <button onclick="captureColor('red')">Capture Red</button>
+        <button onclick="captureColor('green')">Capture Green</button>
+        <button onclick="captureColor('blue')">Capture Blue</button>
+        <button onclick="start()">start</button>
+    </header>
+
+    <div class="controls">
+      <!-- Red Filter Controls -->
+      <div>
+        <h3>Red Filter Adjustments</h3>
+        <label>H (Min): <input id="red-h-min" type="range" min="0" max="179" value="0"></label>
+        <label>H (Max): <input id="red-h-max" type="range" min="0" max="179" value="10"></label>
+        <label>S (Min): <input id="red-s-min" type="range" min="0" max="255" value="100"></label>
+        <label>S (Max): <input id="red-s-max" type="range" min="0" max="255" value="255"></label>
+        <label>V (Min): <input id="red-v-min" type="range" min="0" max="255" value="100"></label>
+        <label>V (Max): <input id="red-v-max" type="range" min="0" max="255" value="255"></label>
+        <button onclick="updateHSV('red')">Update Red Filter</button>
+      </div>
+
+      <!-- Green Filter Controls -->
+      <div>
+        <h3>Green Filter Adjustments</h3>
+        <label>H (Min): <input id="green-h-min" type="range" min="0" max="179" value="40"></label>
+        <label>H (Max): <input id="green-h-max" type="range" min="0" max="179" value="80"></label>
+        <label>S (Min): <input id="green-s-min" type="range" min="0" max="255" value="100"></label>
+        <label>S (Max): <input id="green-s-max" type="range" min="0" max="255" value="255"></label>
+        <label>V (Min): <input id="green-v-min" type="range" min="0" max="255" value="100"></label>
+        <label>V (Max): <input id="green-v-max" type="range" min="0" max="255" value="255"></label>
+        <button onclick="updateHSV('green')">Update Green Filter</button>
+      </div>
+    </div>
+
+    <div class="images">
+      <h2>Image Results</h2>
+      <div class="row">
+        <!-- Images for Original -->
+        <div>
+          <h4>Original</h4>
+          <img id="image-original-1" src="/static/images/green.jpg" alt="Original Image 1">
+          <img id="image-original-2" src="/static/images/red.jpg" alt="Original Image 2">
+          <img id="image-original-3" src="/static/images/brown.jpg" alt="Original Image 3">
+        </div>
+
+        <!-- Images with Red Filter -->
+        <div>
+          <h4>Red Filter</h4>
+          <img id="image-red-1" src="static/temp/red_filtered_1.jpg" alt="Red Filtered Image 1">
+          <img id="image-red-2" src="static/temp/red_filtered_2.jpg" alt="Red Filtered Image 2">
+          <img id="image-red-3" src="static/temp/red_filtered_3.jpg" alt="Red Filtered Image 3">
+        </div>
+
+        <!-- Images with Green Filter -->
+        <div>
+          <h4>Green Filter</h4>
+          <img id="image-green-1" src="static/temp/green_filtered_1.jpg" alt="Green Filtered Image 1">
+          <img id="image-green-2" src="static/temp/green_filtered_2.jpg" alt="Green Filtered Image 2">
+          <img id="image-green-3" src="static/temp/green_filtered_3.jpg" alt="Green Filtered Image 3">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateHSV(filter) {
+    // Gather values from sliders dynamically for the selected filter (red/green)
+    const values = {
+        filter_type: filter,
+
+        // Get values for the red or green filter sliders
+        [`${filter}-h-min`]: document.getElementById(`${filter}-h-min`).value,
+        [`${filter}-h-max`]: document.getElementById(`${filter}-h-max`).value,
+        [`${filter}-s-min`]: document.getElementById(`${filter}-s-min`).value,
+        [`${filter}-s-max`]: document.getElementById(`${filter}-s-max`).value,
+        [`${filter}-v-min`]: document.getElementById(`${filter}-v-min`).value,
+        [`${filter}-v-max`]: document.getElementById(`${filter}-v-max`).value
+    };
+
+    // Log the values to debug
+    console.log(values);  // This will show the data being sent
+
+    // Send a POST request to apply the selected filter
+    fetch("/filtered", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Reload the images (automatic as images are updated with new filter)
+          console.log('Images updated successfully!');
+        } else {
+          console.error('Error applying filter:', data.error);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    // Function to refresh the images periodically
+    function refreshImages() {
+        // Loop through each image ID for red and green filters
+        // original fetch
+        // document.getElementById(`image-original-1`).src = `/static/images/green.jpg`;
+        // document.getElementById(`image-original-2`).src = `/static/images/red.jpg`;
+        // document.getElementById(`image-original-3`).src = `/static/images/brown.jpg`;
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById(`image-original-1`).src = `/static/images/green.jpg`;
+            document.getElementById(`image-original-2`).src = `/static/images/red.jpg`;
+            document.getElementById(`image-original-3`).src = `/static/images/brown.jpg`;
+            // Red Filtered Images
+            document.getElementById(`image-red-${i}`).src = `static/temp/red_filtered_${i}.jpg?${new Date().getTime()}`;
+
+            // Green Filtered Images
+            document.getElementById(`image-green-${i}`).src = `static/temp/green_filtered_${i}.jpg?${new Date().getTime()}`;
+        }
+    }
+
+    // Call the refreshImages function every 0.5 seconds (500ms)
+    setInterval(refreshImages, 50000);
+
+    function captureColor(color) {
+            // Send the color to Flask backend
+            fetch(`/capture/${color}`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${color} color picture captured successfully!`);
+                } else {
+                    alert(`Failed to capture ${color} color.`);
+                }
+            })
+            .catch(error => {
+                alert('Error occurred while capturing color: ' + error);
+            });
+    }
+    function start() {
+            fetch(`/startup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`WE BACK BABY!`);
+                } else {
+                    alert(`IT DID NOT START TEAM!.`);
+                }
+            })
+            .catch(error => {
+                alert('Error occurred while capturing color: ' + error);
+            });
+    }
+  </script>
+</body>
+</html>

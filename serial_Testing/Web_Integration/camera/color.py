@@ -14,12 +14,12 @@ import numpy as np
 #cv2.imshow('final', image)
 
 # path = "bads"
-def detectValue():
+def detectValue(red_h_min, red_h_max, red_s_min, red_s_max, red_v_min, red_v_max, green_h_min, green_h_max, green_s_min, green_s_max, green_v_min, green_v_max):
     cam = Camera()
     cam.take_photo("/home/Zach/Desktop/image3.jpg")
 
     image = cv2.imread("/home/Zach/Desktop/image3.jpg",1)[448:1703, 225:2091]
-    return detectColors(image)
+    return detectColors(image, red_h_min, red_h_max, red_s_min, red_s_max, red_v_min, red_v_max, green_h_min, green_h_max, green_s_min, green_s_max, green_v_min, green_v_max)
 
 def findDescriptor (imgs, orb):
     desList = []
@@ -45,7 +45,7 @@ def findID(img, desList, orb):
         pass
     return matchList
 
-def detectColors(image):
+def detectColors(image, red_h_min, red_h_max, red_s_min, red_s_max, red_v_min, red_v_max, green_h_min, green_h_max, green_s_min, green_s_max, green_v_min, green_v_max):
     down_width = 700
     down_height = 500
     down_points = (down_width, down_height)
@@ -61,12 +61,12 @@ def detectColors(image):
 
     #Mask implementation V2
     #Here's where you can play around with threshold values for what the algo considers red and green in the red_upper/lower and green_upper/lower arrays
-    red_lower = np.array([0, 62, 0], np.uint8) 
-    red_upper = np.array([46, 255, 255], np.uint8) 
+    red_lower = np.array([red_h_min, red_s_min, red_v_min], np.uint8) 
+    red_upper = np.array([red_h_max, red_s_max, red_v_max], np.uint8) 
     red_mask = cv2.inRange(hsv, red_lower, red_upper) 
 
-    green_lower = np.array([42, 56, 0], np.uint8) 
-    green_upper = np.array([90, 255, 255], np.uint8) 
+    green_lower = np.array([green_h_min, green_s_min, green_v_min], np.uint8) 
+    green_upper = np.array([green_h_max, green_s_max, green_v_max], np.uint8) 
     green_mask = cv2.inRange(hsv, green_lower, green_upper) 
 
     # brown_lower = np.array([0, 49, 0], np.uint8) 
