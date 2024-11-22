@@ -443,7 +443,7 @@ def filtered_image():
 #THIS IS A TEMP FUNCTION THIS NEEDS TO BE CHANGED TODAY
 @app.route('/capture/<color>', methods=['GET'])
 def capture_color(color):
-    if color in ['red', 'green', 'blue']:
+    if color in ['red', 'green', 'brown']:
         return jsonify(success=True)
     else:
         return jsonify(success=False), 400
